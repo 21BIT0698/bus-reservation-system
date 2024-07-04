@@ -1,0 +1,111 @@
+import java.util.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+public class bus_res {
+
+    public static void main(String[] args) {
+        ArrayList<Bus> buses = new ArrayList<>();
+        ArrayList<Booking> bookings = new ArrayList<>();
+        buses.add(new Bus(1, 2, true));
+        buses.add(new Bus(2, 50, false));
+        buses.add(new Bus(3, 48, true));
+
+        for (Bus b : buses) {
+            b.displayBusInfo();
+        }
+
+        int useropt = 1;
+        Scanner s = new Scanner(System.in);
+        while (useropt == 1) {
+            System.out.println("Enter 1 to book and 2 to exit");
+            useropt = s.nextInt();
+            if (useropt == 1) {
+                try {
+                    Booking booking = new Booking();
+                    if (booking.isAvailable(bookings, buses)) {
+                        bookings.add(booking);
+                        System.out.println("Your booking is confirmed");
+                    } else {
+                        System.out.println("Sorry. Bus is full. Try another Bus or Date");
+                    }
+                } catch (ParseException e) {
+                    System.out.println("Invalid date format. Please enter the date in dd-MM-yyyy format.");
+                }
+            }
+        }
+        s.close();
+    }
+}
+
+class Bus {
+
+    private int busNo;
+    private int capacity;
+    private boolean AC;
+
+    Bus(int no, int cp, boolean ac) {
+        this.busNo = no;
+        this.capacity = cp;
+        this.AC = ac;
+    }
+
+    public int getCapacity() { 
+        return capacity;
+    }
+
+    public void setCapacity(int cap) { 
+        capacity = cap;
+    }
+
+    public int getBusNo() { 
+        return busNo;
+    }
+
+    public boolean isAc() {
+        return AC;
+    }
+
+    public void setAc(boolean ac) { 
+        AC = ac;
+    }
+
+    public void displayBusInfo() {
+        System.out.println("Bus No: " + busNo + " AC: " + AC + " Total Capacity: " + capacity);
+    }
+}
+
+class Booking {
+    String passengerName;
+    int busNo;
+    Date date;
+
+    Booking() throws ParseException {
+        Scanner s = new Scanner(System.in);
+        System.out.println("Enter name of passenger:");
+        passengerName = s.nextLine();
+        System.out.println("Enter Bus no:");
+        busNo = s.nextInt();
+        System.out.println("Enter the date (dd-MM-yyyy):");
+        String dateInput = s.next(); // Changed to s.next() to read string input
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        date = dateFormat.parse(dateInput); // Parse method to change to date
+    }
+
+    public boolean isAvailable(ArrayList<Booking> bookings, ArrayList<Bus> buses) {
+        int capacity = 0;
+        for (Bus bus : buses) {
+            if (bus.getBusNo() == busNo) {
+                capacity = bus.getCapacity();
+                break;
+            }
+        }
+        int booked = 0;
+        for (Booking b : bookings) {
+            if (b.busNo == busNo && b.date.equals(date)) {
+                booked++;
+            }
+        }
+        return booked < capacity;
+    }
+}
